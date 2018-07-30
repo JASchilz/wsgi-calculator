@@ -85,7 +85,7 @@ def resolve_path(path):
     func_name = path.pop(0)
     args = [int(arg) for arg in path]
     funcs = {'add': add,
-             'substract': subtract,
+             'subtract': subtract,  # Typo fix
              'multiply': multiply,
              'divide': divide,
              }
