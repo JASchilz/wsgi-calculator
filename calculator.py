@@ -64,8 +64,6 @@ def add(*args):
     for arg in args:
         try:
             sum += int(arg)
-        except (ValueError, TypeError):
-            pass
 
     return "{}".format(sum)
 
@@ -77,8 +75,6 @@ def multiply(*args):
     for arg in args:
         try:
             product *= int(arg)
-        except (ValueError, TypeError):
-            pass
 
     return "{}".format(product)
 
@@ -92,8 +88,6 @@ def divide(*args):
     for arg in args:
         try:
             quotient = int(dividend)/int(divisor)
-        except (ValueError, TypeError):
-            pass
 
     return "{}".format(quotient)
 
@@ -107,8 +101,6 @@ def subtract(*args):
     for arg in args:
         try:
             difference = int(num1) - int(num2)
-        except (ValueError, TypeError):
-            pass
 
     return "{}".format(difference)
 
@@ -164,6 +156,10 @@ def application(environ, start_response):
     except ZeroDivisionError:
         status = "400 Bad Request"
         body = "<h1>Divide by Zero Error</h1>"
+    except (TypeError, ValueError):
+        status = "400 Bad Request"
+        body = "<h1>Inputs Must be Numbers</h1>"
+        print(traceback.format_exc())
     except Exception:
         status = "500 Internal Server Error"
         body = "<h1>Internal Server Error</h1>"
