@@ -40,45 +40,114 @@ To submit your homework:
 
 
 """
+import traceback
+
+
+def instruct(*args):
+    """Returns a STRING with instructions for the system"""
+    body = ['<h1>How to use the Calculator<h1>',
+            '<h3>Start with the URL <a href="localhost:8080">localhost:8080</a>.</h3>',
+            '<p>Append "/" and the operation you want!</p>',
+            'Choose From:', '<ul>']
+
+    for operation in ['add', 'subtract', 'multiply', 'divide']:
+        body.append('<li>{}</li>'.format(operation))
+
+    body.append('</ul>')
+    body.append('<p>Finally, add "/x/y where x and y are the numbers to use.</p>')
+    body.append('<p>For example, multiplying 2 and 29 would look like this: '
+                '<a href="localhost:8080/multiply/2/29">localhost:8080/multiply/2/29</a></p>')
+    body.append('<p>Note that the system subtracts the second number from '
+                'the first and divides the first number by the second</p>')
+
+    return '\n'.join(body)
 
 
 def add(*args):
     """ Returns a STRING with the sum of the arguments """
 
-    # TODO: Fill sum with the correct value, based on the
-    # args provided.
-    sum = "0"
+    total = 0
+    for arg in args:
+        total += int(arg)
 
-    return sum
+    return str(total)
 
-# TODO: Add functions for handling more arithmetic operations.
+
+def multiply(*args):
+    """ Returns a STRING with the product of the arguments """
+
+    total = 1
+    for arg in args:
+        total *= int(arg)
+
+    return str(total)
+
+
+def subtract(*args):
+    """ Returns a STRING, subtracting the second arg from the first """
+
+    return str(int(args[0]) - int(args[1]))
+
+
+def divide(*args):
+    """ Returns a STRING, dividing the second arg by the first"""
+
+    try:
+        return str(int(args[0]) / int(args[1]))
+    except ZeroDivisionError:
+        return 'The system cannot divide by zero. The answer is undefined.'
+
 
 def resolve_path(path):
     """
     Should return two values: a callable and an iterable of
     arguments.
     """
+    funcs = {'': instruct,
+             'add': add,
+             'multiply': multiply,
+             'divide': divide,
+             'subtract': subtract}
 
-    # TODO: Provide correct values for func and args. The
-    # examples provide the correct *syntax*, but you should
-    # determine the actual values of func and args using the
-    # path.
-    func = add
-    args = ['25', '32']
+    path = path.strip('/').split('/')
+
+    func_name = path[0]
+    args = path[1:]
+
+    try:
+        func = funcs[func_name]
+    except KeyError:
+        raise NameError
 
     return func, args
 
+
 def application(environ, start_response):
-    # TODO: Your application code from the book database
-    # work here as well! Remember that your application must
-    # invoke start_response(status, headers) and also return
-    # the body of the response in BYTE encoding.
-    #
     # TODO (bonus): Add error handling for a user attempting
-    # to divide by zero.
-    pass
+    # to divide by zero. - I did this in the division app
+
+    headers = [("Content-type", "text/html")]
+    try:
+        path = environ.get('PATH_INFO', None)
+        if path is None:
+            raise NameError
+        func, args = resolve_path(path)
+        body = func(*args)
+        status = "200 OK"
+    except NameError:
+        status = "404 Not Found"
+        body = "<h1>Not Found</h1>"
+    except Exception:
+        status = "500 Internal Server Error"
+        body = "<h1>Internal Server Error</h1>"
+        print(traceback.format_exc())
+    finally:
+        headers.append(('Content-length', str(len(body))))
+        start_response(status, headers)
+        return [body.encode('utf8')]
+
 
 if __name__ == '__main__':
-    # TODO: Insert the same boilerplate wsgiref simple
-    # server creation that you used in the book database.
-    pass
+    from wsgiref.simple_server import make_server
+    srv = make_server('localhost', 8080, application)
+    srv.serve_forever()
