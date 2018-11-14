@@ -92,10 +92,8 @@ def subtract(*args):
 def divide(*args):
     """ Returns a STRING, dividing the second arg by the first"""
 
-    try:
-        return str(int(args[0]) / int(args[1]))
-    except ZeroDivisionError:
-        return 'The system cannot divide by zero. The answer is undefined.'
+    return str(int(args[0]) / int(args[1]))
+    
 
 
 def resolve_path(path):
@@ -137,6 +135,10 @@ def application(environ, start_response):
     except NameError:
         status = "404 Not Found"
         body = "<h1>Not Found</h1>"
+    except ZeroDivisionError:
+        status = "400 Bad Request"
+        body = "<h1>Bad Request</h1>"
+        body += '<p>The system cannot divide by zero. The answer is undefined.</p>'
     except Exception:
         status = "500 Internal Server Error"
         body = "<h1>Internal Server Error</h1>"
