@@ -48,10 +48,7 @@ def add(*args):
     # TODO: Fill sum with the correct value, based on the
     # args provided.
 
-    try:
-        total = int(args[0]) + int(args[1])
-    except ValueError:
-        return "Please enter numeric values into the calculator. Error: {}".format(ValueError)
+    total = int(args[0]) + int(args[1])
 
     return str(total)
 
@@ -61,11 +58,7 @@ def subtract(*args):
 
     # TODO: Fill difference with the correct value, based on the
     # args provided.
-
-    try:
-        total = int(args[0]) - int(args[1])
-    except ValueError:
-        return "Please enter numeric values into the calculator. Error: {}".format(ValueError)
+    total = int(args[0]) - int(args[1])
 
     return str(total)
 
@@ -74,11 +67,7 @@ def multiply(*args):
 
     # TODO: Fill product with the correct value, based on the
     # args provided.
-    try:
-        total = int(args[0]) * int(args[1])
-    except ValueError:
-        return "Please enter numeric values into the calculator. Error: {}".format(ValueError)
-
+    total = int(args[0]) * int(args[1])
     return str(total)
 
 def divide(*args):
@@ -86,12 +75,7 @@ def divide(*args):
 
     # TODO: Fill quotient with the correct value, based on the
     # args provided.
-    try:
-        total = int(args[0])/int(args[1])
-    except ValueError:
-        return "Please enter numeric values into the calculator. Error: {}".format(ValueError)
-    except ZeroDivisionError:
-        return "Cannot divide by zero"
+    total = int(args[0])/int(args[1])
 
     return str(total)
 
@@ -157,6 +141,12 @@ def application(environ, start_response):
     except NameError:
         status = "404 Not Found"
         body = "<h1>Not Found</h1>"
+    except ValueError:
+        status = "400 Bad Request"
+        body = "<h1>Bad Request</h1> <p>Please enter numeric values into the calculator.</p>"
+    except ZeroDivisionError:
+        status = "400 Bad Request"
+        body = "<h1>Bad Request</h1> <p>Cannot divide by zero</p>"
     except Exception:
         status = "500 Internal Server Error"
         body = "<h1>Internal Server Error</h1>"
